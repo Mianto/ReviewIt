@@ -1,6 +1,6 @@
-from flask import render_template, url_for, flash, redirect, request, Blueprint
+from flask import current_app, render_template, url_for, flash, redirect, request, Blueprint
 from flask_login import login_user, current_user, logout_user, login_required
-from reviewit import current_app, db, bcrypt
+from reviewit import db, bcrypt
 from reviewit.models import User, Post
 from reviewit.users.forms import (RegistrationForm, LoginForm, UpdateAccountForm,
                                    ResetRequestForm, ResetPasswordForm, VerifyPasswordForm)
@@ -9,30 +9,26 @@ from reviewit.users.utils import save_picture, send_reset_email, send_conf_email
 users = Blueprint('users', __name__)
 
 
-@users.route("/")
-def hello():
-	return render_template('base.html', sidebar=True)
-
-
-
 @users.route("/register", methods=['GET', 'POST'])
 def register():
 	if current_user.is_authenticated:
-		return redirect(url_for('main.home'))
+		return redirect(url_for('users.account'))
 	form = RegistrationForm()
 	if request.method=='POST':	
 		if form.validate_on_submit():
-			print(123)
-			hash_pwd = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-			user = User(email = form.email.data, username = form.username.data, password = hash_pwd)
-			db.session.add(user)
-			db.session.commit()
+			# print(123)
+			hash_pwd = bcrypt.generate_password_hash(form.password.data.encode('utf-8')).decode('utf-8')
+			user = User(fname=form.fname.data, lname=form.lname.data, email = form.email.data, username = form.username.data, password = hash_pwd)
 			try:
 				send_conf_email(user)
 				flash(f'An confirmation link has been sent to {user.email}', 'info')
-			except:
+				db.session.add(user)
+				db.session.commit()
+				return redirect(url_for('users.login'))
+			except Exception as e:
+				print(e)
 				flash(f'Something went wrong', 'danger')
-			return redirect(url_for('users.login'))
+			
 
 	return render_template('register.html', title="Register", form = form)
 
@@ -45,7 +41,7 @@ def login():
 	if request.method=='POST':	
 		if form.validate_on_submit():
 			user = User.query.filter_by(email = form.email.data).first()
-			if user and bcrypt.check_password_hash(user.password, form.password.data) and user.confirmed:
+			if user and bcrypt.check_password_hash(user.password, form.password.data.encode('utf-8')) and user.confirmed:
 				login_user(user, remember=form.remember.data)
 				flash(f'You have logged in !!', 'success')
 				next_page = request.args.get('next')
@@ -119,7 +115,7 @@ def reset_token(token):
 			return redirect(url_for('users.login'))
 		
 		if form.validate_on_submit():
-			hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+			hashed_password = bcrypt.generate_password_hash(form.password.data.encode('utf-8')).decode('utf-8')
 			user.password = hashed_password
 			db.session.commit()
 			flash('Your password has been updated! You are now able to log in', 'success')
@@ -130,13 +126,14 @@ def reset_token(token):
 
 
 @users.route("/account/<string:uname>", methods=['GET', 'POST'])
+@login_required
 def account(uname):
 	
 	page = request.args.get('page', 1, type=int)
 	user = User.query.filter_by(username=uname).first_or_404()
 	posts = Post.query.filter_by(author=user).order_by(Post.date_posted.desc()).paginate(page=page, per_page=6)
 
-	if current_user.is_authenticated and current_user.username == uname:
+	if current_user.username == uname:
 		form = UpdateAccountForm()
 		pForm = VerifyPasswordForm()
 		if request.method == 'POST':
@@ -149,17 +146,25 @@ def account(uname):
 						file_path = os.path.join(current_app.root_path, 'static', 'profile_pics', old_picture)
 						os.remove(file_path)
 						print("Old Picture Removed")
+				current_user.fname = form.fname.data
+				current_user.lname = form.lname.data
 				current_user.username = form.username.data
 				current_user.email = form.email.data
+				current_user.designation = form.designation.data
+				current_user.company = form.company.data
+				current_user.website = form.website.data
+				current_user.description = form.description.data
 				db.session.commit()
 				flash('Your account has been updated!', 'success')
 				return redirect(url_for('users.account', uname=current_user.username))
 		elif request.method == 'GET':
+			form.fname.data = current_user.fname
+			form.lname.data = current_user.lname
 			form.username.data = current_user.username
 			form.email.data = current_user.email
-
-		return render_template('account.html', title='Account', form=form, pForm=pForm, account=current_user, posts=posts, sidebar=True)
-	else:
-		form = None
-		return render_template('account.html', title='Account', account=user, posts=posts, sidebar=True)
+			form.designation.data = current_user.designation
+			form.company.data = current_user.company
+			form.website.data = current_user.website
+			form.description.data = current_user.description
+		return render_template('account.html', title='Account Info', form=form, pForm=pForm, account=current_user, posts=posts, sidebar=True)
 

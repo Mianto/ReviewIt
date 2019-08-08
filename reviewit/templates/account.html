@@ -1,0 +1,251 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div class="page-header row no-gutters pt-4 pb-2">
+  <div class="col-12 col-sm-4 text-center text-sm-left mb-0">
+    <h3 class="page-title">{{ title }}</h3>
+  </div>
+</div>
+<hr>
+
+<!-- Default Light Table -->
+<div class="row">
+  <div class="col-lg-4">
+    <div class="card card-small mb-4 pt-3">
+      <div class="card-header border-bottom text-center">
+        <div class="mb-3 mx-auto">
+          <img class="rounded-circle" src="{{ url_for('static', filename='images/avatars/default.jpg') }}" alt="{{ current_user.fname }} {{current_user.lname}}" width="110">
+        </div>
+        <h4 class="mb-0">{{ current_user.fname }} {{current_user.lname}}</h4>
+        {% if current_user.designation %}
+        <span class="text-muted d-block mb-2">{{ current_user.designation }}</span>
+        {% endif %}
+      </div>
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item p-4">
+          {% if current_user.description %}
+          <strong class="text-muted d-block mb-2">Description</strong>
+          <span>{{ current_user.description }}</span>
+          {% endif %}
+        </li>
+      </ul>
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item p-4">
+          <button type="button" class="btn btn-outline-info btn-sm m-1" data-toggle="modal" data-target="#passwordResetModal">
+          Reset Password
+      	  </button>
+        </li>
+      </ul>
+
+	    {% if pForm %}
+	    <!-- Modal -->
+	    <div class="modal fade" id="passwordResetModal" tabindex="-1" role="dialog" aria-labelledby="passwordResetModalLabel" aria-hidden="true">
+	        <div class="modal-dialog" role="document">
+	            <div class="modal-content">
+	                <div class="modal-header">
+	                    <h5 class="modal-title text-center" id="editModalLabel">Verify Password</h5>
+	                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	                    <span aria-hidden="true">&times;</span>
+	                    </button>
+	                </div>
+	                <div class="modal-body">
+	                	<!-- FORM HERE -->
+					  	<form action="{{ url_for('users.reset_request') }}" class="form-signin" method="POST" enctype="multipart/form-data">
+					      	{{ pForm.hidden_tag() }}
+					      	<div class="form-group">
+								<!-- {{ form.username.label(class="form-control-label")}} -->
+			                    {% if pForm.password.errors %}
+			                        {{ pForm.password(class="form-control form-control-md is-invalid") }}
+			                        <div class="invalid-feedback">
+			                            {% for error in pForm.password.errors %}
+			                                <span>{{ error }}</span>
+			                            {% endfor %}
+			                        </div>
+			                    {% else %}
+			                        {{ pForm.password(class="form-control form-control-md") }}
+			                    {% endif %}
+							</div>
+				            <div class="form-group text-center">
+				                {{ pForm.submit(class="btn") }}
+				            </div>
+					    </form>
+	                </div>
+	            </div>
+	        </div>
+	    </div>  
+	    {% endif %}	
+      
+    </div>
+  </div>
+  <div class="col-lg-8">
+    <div class="card card-small mb-4">
+      <div class="card-header border-bottom">
+        <h6 class="m-0">Account Details</h6>
+      </div>
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item p-3">
+          <div class="row">
+            <div class="col">
+              <form method="POST">
+                {{ form.hidden_tag() }}
+		      	<div class="form-row">
+		          <div class="form-group col-md-6">
+			          	<!-- {{ form.fname.label(class="form-control-label")}} -->
+			          {% if form.fname.errors %}
+			              {{ form.fname(class="form-control form-control-md is-invalid") }}
+			              <div class="invalid-feedback">
+			                  {% for error in form.fname.errors %}
+			                      <span>{{ error }}</span>
+			                  {% endfor %}
+			              </div>
+			          {% else %}
+			              {{ form.fname(class="form-control form-control-md") }}
+			          {% endif %}
+		          </div>
+		          <div class="form-group col-md-6">
+			          	<!-- {{ form.lname.label(class="form-control-label")}} -->
+			          {% if form.lname.errors %}
+			              {{ form.lname(class="form-control form-control-md is-invalid") }}
+			              <div class="invalid-feedback">
+			                  {% for error in form.lname.errors %}
+			                      <span>{{ error }}</span>
+			                  {% endfor %}
+			              </div>
+			          {% else %}
+			              {{ form.lname(class="form-control form-control-md") }}
+			          {% endif %}
+		          </div>
+		        </div>
+		        <div class="form-row">
+		          <div class="form-group col-md-6">
+		          	<div class="input-group input-group-default">
+		          		<span class="input-group-prepend">
+		      				<span class="input-group-text">
+		      					<i class="fa fa-user"></i> 
+		      				</span>
+		      			</span>	 
+			          	<!-- {{ form.username.label(class="form-control-label")}} -->
+			          {% if form.username.errors %}
+			              {{ form.username(class="form-control form-control-md is-invalid") }}
+			              <div class="invalid-feedback">
+			                  {% for error in form.username.errors %}
+			                      <span>{{ error }}</span>
+			                  {% endfor %}
+			              </div>
+			          {% else %}
+			              {{ form.username(class="form-control form-control-md") }}
+			          {% endif %}
+			      	</div>
+		          </div>
+		          <div class="form-group col-md-6">
+		          	<div class="input-group input-group-default">
+		          		<span class="input-group-prepend">
+		      				<span class="input-group-text">
+		      					<i class="fa fa-at"></i> 
+		      				</span>
+		      			</span>	 
+			          	<!-- {{ form.email.label(class="form-control-label")}} -->
+			          {% if form.email.errors %}
+			              {{ form.email(class="form-control form-control-md is-invalid") }}
+			              <div class="invalid-feedback">
+			                  {% for error in form.email.errors %}
+			                      <span>{{ error }}</span>
+			                  {% endfor %}
+			              </div>
+			          {% else %}
+			              {{ form.email(class="form-control form-control-md") }}
+			          {% endif %}
+			      	</div>
+		          </div>
+		        </div>
+                <div class="form-group">
+					<div class="input-group input-group-default">
+		      			<span class="input-group-prepend">
+		      				<span class="input-group-text">
+		      					<i class="fa fa-briefcase"></i> 
+		      				</span>
+		      			</span>	      		
+						<!-- {{ form.designation.label(class="form-control-label")}} -->
+						{% if form.designation.errors %}
+					        {{ form.designation(class="form-control form-control-md is-invalid") }}
+					        <div class="invalid-feedback">
+					            {% for error in form.designation.errors %}
+					                <span>{{ error }}</span>
+					            {% endfor %}
+					        </div>
+					    {% else %}
+					        {{ form.designation(class="form-control form-control-md") }}
+					    {% endif %}
+		    		</div>
+				</div>
+				<div class="form-group">
+					<div class="input-group input-group-default">
+		      			<span class="input-group-prepend">
+		      				<span class="input-group-text">
+		      					<i class="fa fa-building"></i> 
+		      				</span>
+		      			</span>	      		
+						<!-- {{ form.company.label(class="form-control-label")}} -->
+						{% if form.company.errors %}
+					        {{ form.company(class="form-control form-control-md is-invalid") }}
+					        <div class="invalid-feedback">
+					            {% for error in form.company.errors %}
+					                <span>{{ error }}</span>
+					            {% endfor %}
+					        </div>
+					    {% else %}
+					        {{ form.company(class="form-control form-control-md") }}
+					    {% endif %}
+		    		</div>
+				</div>
+				<div class="form-group">
+					<div class="input-group input-group-default">
+		      			<span class="input-group-prepend">
+		      				<span class="input-group-text">
+		      					<i class="fa fa-link"></i> 
+		      				</span>
+		      			</span>	      		
+						<!-- {{ form.website.label(class="form-control-label")}} -->
+						{% if form.website.errors %}
+					        {{ form.website(class="form-control form-control-md is-invalid") }}
+					        <div class="invalid-feedback">
+					            {% for error in form.website.errors %}
+					                <span>{{ error }}</span>
+					            {% endfor %}
+					        </div>
+					    {% else %}
+					        {{ form.website(class="form-control form-control-md") }}
+					    {% endif %}
+		    		</div>
+				</div>
+				<div class="form-group">
+					<div class="input-group input-group-default">
+     		
+						<!-- {{ form.description.label(class="form-control-label")}} -->
+						{% if form.description.errors %}
+					        {{ form.description(class="form-control form-control-md is-invalid", rows="5", cols="100") }}
+					        <div class="invalid-feedback">
+					            {% for error in form.description.errors %}
+					                <span>{{ error }}</span>
+					            {% endfor %}
+					        </div>
+					    {% else %}
+					        {{ form.description(class="form-control form-control-md", rows="5", cols="100") }}
+					    {% endif %}
+		    		</div>
+				</div>
+                <button type="submit" class="btn btn-accent">Update Account</button>
+              </form>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+<!-- End Default Light Table -->
+
+
+{% endblock content %}
