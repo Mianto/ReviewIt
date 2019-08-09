@@ -10,6 +10,41 @@
 </div>
 <hr>
 <!-- End Page Header -->
+<div class="col-md-6">
+  <div class=""><h3 class="h3 text-center">Sentiment Analysis</h3></div>
+  <div id="sentiment" style="width: 500px; height: 400px;">
+  </div>
+</div>
 
 
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script type="text/javascript">
+    google.charts.load('current', {'packages':['bar']});
+    google.charts.setOnLoadCallback(drawStuff);
+
+    function drawStuff() {
+      var data = new google.visualization.arrayToDataTable([
+        ["Sentiments", "Number of Reviews"],
+        ["Postive", {{result['pos']}}],
+        ["Negative", {{result['neg']}}],
+        ["Neutral", {{result['neu']}} ],
+      ]);
+
+
+      var options = {
+        title: 'Sentiment Analysis',
+        width: 800,
+        chart: { title: ' ',
+                   subtitle: '' },
+        legend: { position: 'none' },
+        bars: 'horizontal', // Required for Material Bar Charts.
+        bar: { groupWidth: "90%" }
+      };
+
+      var chart = new google.charts.Bar(document.getElementById('sentiment'));
+      chart.draw(data, options);
+    };
+
+
+</script>
 {% endblock content%}

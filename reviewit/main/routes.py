@@ -1,6 +1,7 @@
 from flask import render_template, request, Blueprint
 from flask_login import login_required
 
+from .data_processing import sentiment_analyzer
 
 main = Blueprint('main', __name__)
 
@@ -14,6 +15,6 @@ def about():
 	return render_template('about.html', title="About")
 
 @main.route("/dashboard")
-@login_required
 def dashboard():
-	return render_template('dashboard.html', title="Dashboard")
+	result = sentiment_analyzer(r'C:\Users\Siddhant\Downloads\data\imdb_master.csv')
+	return render_template('dashboard.html', title="Dashboard", result=result)
