@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="page-header row no-gutters py-4">
+  <div class="col-12 col-sm-4 text-center text-sm-left mb-5">
+    <h3 class="page-title">Reviews for {{ campaign }}</h3>
+  </div>
+</div>
+
+<div class="row">
+	{% if reviews|length > 0 %}
+	<table class="table mb-0 m-auto" style="width:80%;">
+      <thead class="bg-light">
+        <tr>
+          <th scope="col" class="border-0">#</th>
+          <th scope="col" class="border-0">Product Id</th>
+          <th scope="col" class="border-0">Reviewer</th>
+          <th scope="col" class="border-0">Email</th>
+          <th scope="col" class="border-0">Review</th>
+          <th scope="col" class="border-0">Posted on</th>
+          <!-- <th scope="col" class="border-0"> Status </th> -->
+        </tr>
+      </thead>
+      <tbody>
+        {% for review in reviews %}
+        	<tr id="{{review.id}}">
+	          <td>{{ review.id }}</td>
+	          <td>{{ review.product_id }}</td>
+	          <td>{{ review.reviewer }}</td>
+	          <td>{{ review.reviewer_email }}</td>
+	          <td>{{ review.review_text }}</td>
+	          <td>{{ review.date_posted }}</td>
+	        </tr>
+		{% endfor %}
+      </tbody>
+    </table>
+	{% else %}
+		No Reviews written yet.
+	{% endif %}
+</div>
+
+{% endblock content %}

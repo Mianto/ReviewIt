@@ -76,7 +76,7 @@ class UpdateAccountForm(FlaskForm):
 										validators = [DataRequired(), URL()])
 
 	description = TextAreaField('Description', render_kw={'placeholder': 'Tell us about you and your company'}, 
-										validators = [])
+										validators = [Length(min=2, max=400)])
 
 	picture = FileField('Update Profile Picture', render_kw={'placeholder':'.jpg, .png allowed'}, validators=[FileAllowed(['jpg', 'png'])])
     

@@ -1,7 +1,7 @@
 from flask import current_app, render_template, url_for, flash, redirect, request, Blueprint
 from flask_login import login_user, current_user, logout_user, login_required
 from reviewit import db, bcrypt
-from reviewit.models import User, Post
+from reviewit.models import User
 from reviewit.users.forms import (RegistrationForm, LoginForm, UpdateAccountForm,
                                    ResetRequestForm, ResetPasswordForm, VerifyPasswordForm)
 from reviewit.users.utils import save_picture, send_reset_email, send_conf_email
@@ -28,15 +28,18 @@ def register():
 			except Exception as e:
 				print(e)
 				flash(f'Something went wrong', 'danger')
-			
-
+	
+	
 	return render_template('register.html', title="Register", form = form)
 
 
 @users.route("/login", methods=['GET', 'POST'])
 def login():
+
 	if current_user.is_authenticated:
+		print(current_user.username)
 		return redirect(url_for('main.home'))
+	# print(current_user.username, "----------------------")
 	form = LoginForm()
 	if request.method=='POST':	
 		if form.validate_on_submit():
@@ -131,8 +134,7 @@ def account(uname):
 	
 	page = request.args.get('page', 1, type=int)
 	user = User.query.filter_by(username=uname).first_or_404()
-	posts = Post.query.filter_by(author=user).order_by(Post.date_posted.desc()).paginate(page=page, per_page=6)
-
+	
 	if current_user.username == uname:
 		form = UpdateAccountForm()
 		pForm = VerifyPasswordForm()
@@ -166,5 +168,5 @@ def account(uname):
 			form.company.data = current_user.company
 			form.website.data = current_user.website
 			form.description.data = current_user.description
-		return render_template('account.html', title='Account Info', form=form, pForm=pForm, account=current_user, posts=posts, sidebar=True)
+		return render_template('account.html', title='Account Info', form=form, pForm=pForm, account=current_user, sidebar=True)
 

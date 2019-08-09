@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>
+		Comment Section
+	</title>
+	<link href="https://use.fontawesome.com/releases/v5.0.6/css/all.css" rel="stylesheet">
+  
+</head>
+<body>
+	<style type="text/css">
+		*{
+			font-family:inherit;
+		}
+
+		body{
+			font-family: "Helvetica Neue",arial,sans-serif;
+		    font-size: 15px;
+		    -webkit-font-smoothing: antialiased;
+		}
+		#centerme21345{
+			margin:auto;
+			width:80%;
+		}
+
+		#centerme21345 form input[type='text'], #centerme21345 form textarea{
+			width:50%;
+			padding: 10px;
+		    border: 0;
+		    border-radius: 10px;
+		    background: #f7f7f7;
+		}
+
+		#centerme21345 form textarea{
+		    width: 100%;
+		    height: 80px;
+		    resize: none;
+		}
+
+		.inputentity156534{
+			margin-bottom:15px;
+		}
+
+		.invalid159{
+			border:1px solid red;
+		}
+
+		.invalid123456{
+			color:red;
+		}
+
+		#btn41545{
+			border: 0;
+		    border-radius: 30px;
+		    padding: 7px 16px;
+		    background: #448ef6;
+		    color: #fff;
+		    font-size: 0.9em;
+		    margin-bottom: 20px;
+		}
+
+		p.invalid123456, span{
+			font-size:9px !important;
+		}
+
+		p.timestamp45631{
+			float:right;
+		}
+
+		p.review5343{
+			padding-left:10px;
+		}
+
+		.comment767687{
+			padding: 10px 20px;
+		    background: #efefef;
+		    border-radius: 10px;
+		    margin-bottom: 15px;
+		}
+	</style>
+
+
+	<div id="centerme21345">
+		<h2> {{ heading }} </h2>
+		<form method="POST" id="review_section7897897" section="{{id}}" item="anonymous">
+      		{{ form.hidden_tag() }}
+			<div class="inputentity156534">
+				<!-- {{ form.reviewer.label(class="form-control-label")}} -->
+		        {{ form.reviewer() }}
+		        <div class="invalid123456" id="reviewer_response" class="resp">
+		            
+		        </div>
+			</div>
+			<div class="inputentity156534">
+				<!-- {{ form.reviewer_email.label(class="form-control-label")}} -->
+		        {{ form.reviewer_email() }}
+			    <div class="invalid123456" id="reviewer_email_response" class="resp">
+		            
+		        </div>
+			</div>
+			<div class="inputentity156534">
+				<!-- {{ form.review_text.label(class="form-control-label")}} -->
+		        {{ form.review_text() }}
+		    	<div class="invalid123456" id="review_text_response" class="resp">
+			            
+			    </div>	   	
+			</div>
+			
+			<div class="inputentity156534">
+				{{ form.submit(id="btn41545") }}
+				<span id="review_response" class="resp"></span>
+			</div>
+      	</form>
+      	<div class="reviewlist156564">
+			{% for review in reviews %}
+			<div class="comment767687">
+				<h4>{{review.username}} says</h4>
+				<p class="timestamp45631">{{review.date_posted.strftime('%Y-%m-%d %H:%M:%S')}}</p>
+				<p class="review5343">{{ review.review_text }}</p>
+			</div>
+			{% endfor %}
+		</div>
+	</div>
+	
+
+	<script type="text/javascript" src="{{ url_for('static', filename='scripts/jquery-3.3.1.min.js')}}"></script>
+
+	<script type="text/javascript">
+		$(document).ready(function(){
+			$("form#review_section7897897").on('submit', function(e){
+				e.preventDefault();
+
+				$.ajax({
+					url: "{{ url_for('reviews.add_review', section_id=id, _external=True) }}",
+					method: 'POST',
+					data: {
+						csrf_token:$("form#review_section7897897 input[name='csrf_token']").val(),
+						product_id : $("form#review_section7897897").attr('item'),
+						reviewer : $("form#review_section7897897 input[name='reviewer']").val(),
+						reviewer_email: $("form#review_section7897897 input[name='reviewer_email']").val(),
+						review_text : $("form#review_section7897897 textarea[name='review_text']").val()
+					},
+					success: function(data){
+						// console.log(data);
+						$("#review_response, #review_text_response, #reviewer_email_response, #reviewer_response").html("");
+						if(data['msg_type'] == 'success'){
+							$("#review_response").html("<span>Review added successfully</span>");
+						}else{
+							for (const entry of Object.entries(data['msg'])) {
+							  // console.log(entry[0]);
+							  $("#"+entry[0]+"_response").html("<span class='invalid123456'>"+entry[1]+"</span>");
+							}
+						}
+						
+					}
+				});
+
+			});
+		});
+	</script>
+
+</body>
+</html>

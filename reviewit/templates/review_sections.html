@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="page-header row no-gutters py-4">
+  <div class="col-12 col-sm-4 text-center text-sm-left mb-5">
+    <h3 class="page-title">{{ title }}</h3>
+  </div>
+</div>
+
+
+<div class="row mb-3">
+	<div class="m-auto" style="width:80%; text-align:left;">
+		<a href="{{ url_for('reviews.make_section')}}"><button class="btn btn-primary btn-pill"> + Add New Section </button></a>
+	</div>
+</div>
+
+<div class="row">
+	{% if sections|length > 0 %}
+	<table class="table mb-0 m-auto" style="width:80%;">
+      
+      <thead class="bg-light">
+        <tr>
+          <th scope="col" class="border-0">#</th>
+          <th scope="col" class="border-0">Campaign Name</th>
+          <th scope="col" class="border-0">Heading </th>
+          <th scope="col" class="border-0">Review Placeholder</th>
+          <th scope="col" class="border-0">Code</th>
+          <th scope="col" class="border-0">Reviews</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for section in sections %}
+        	<tr id="{{section.section_id}}">
+	          <td>{{ section.id }}</td>
+	          <td>{{ section.campaign_title }}</td>
+	          <td>{{ section.heading }}</td>
+	          <td>{{ section.placeholder }}</td>
+	          <td><button class="btn btn-primary btn-pill" data-toggle="modal" data-target="#codeSnippetModal"> Get Code</button></td>
+	          <td><a href="{{ url_for('reviews.see_reviews', section_id=section.section_id) }}" class="btn btn-info btn-pill"> See Reviews</a></td>
+	        </tr>
+		{% endfor %}
+      </tbody>
+    </table>
+	{% else %}
+		No Review Sections made yet.
+	{% endif %}
+	
+	<!-- Modal -->
+	    <div class="modal fade" id="codeSnippetModal" tabindex="-1" role="dialog" aria-labelledby="codeSnippetModalLabel" aria-hidden="true">
+	        <div class="modal-dialog" role="document">
+	            <div class="modal-content">
+	                <div class="modal-header">
+	                    <h5 class="modal-title text-center" id="editModalLabel">Copy this code to source code</h5>
+	                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	                    <span aria-hidden="true">&times;</span>
+	                    </button>
+	                </div>
+	                <div class="modal-body">
+	                	<code>
+	                		&lt;iframe&gt;&lt;/iframe&gt;
+	                	</code>
+	                </div>
+	            </div>
+	        </div>
+	    </div> 
+
+</div>
+
+<script type="text/javascript" src="{{url_for('static', filename='scripts/jquery-3.3.1.min.js')}}"></script>
+
+<script type="text/javascript">
+	$(document).ready(function(){
+		$("button[data-toggle='modal']").on('click', function(){
+			let section_id = $(this).closest('tr').attr('id');
+			$("#codeSnippetModal .modal-body code").html("&lt;iframe src='{{ url_for('reviews.show_section', section_id="", _external=True) }}"+section_id+"'&gt; &lt;/iframe&gt;")
+		});
+	});
+</script>
+
+{% endblock content %}

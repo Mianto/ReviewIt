@@ -28,16 +28,16 @@ def create_app(config_class=Config):
 	bcrypt.init_app(app)
 	login_manager.init_app(app)
 	mail.init_app(app)
+	# print(db)
 	migrate.init_app(app, db)
 	
-
 	from reviewit.users.routes import users
-	# from reviewit.posts.routes import posts
 	from reviewit.main.routes import main
+	from reviewit.reviews.routes import reviews
 	from reviewit.errors.handlers import errors
 
 	app.register_blueprint(users)
-	# app.register_blueprint(posts)
+	app.register_blueprint(reviews, url_prefix='/reviews')
 	app.register_blueprint(main)
 	app.register_blueprint(errors)
 	return app
